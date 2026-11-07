@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Eddie — WhatsApp assistant + to-dos for small business</title>
+<meta name="description" content="Eddie turns your prices, hours and delivery rules into WhatsApp replies that answer customers in seconds, and keeps your to-do list in one place." />
+<style>
+  :root{
+    --ink:#171226; --ink2:#3b3350; --muted:#7a7290;
+    --violet:#6E56CF; --violet-d:#533ac0; --mint:#2fbf8f; --amber:#f0a838;
+    --bg:#f6f4fd; --card:#ffffff; --line:#e7e2f5; --soft:#efeafd;
+    --r:18px; --shadow:0 1px 2px rgba(23,18,38,.05), 0 14px 34px -18px rgba(23,18,38,.32);
+    --shadow-lift:0 2px 6px rgba(23,18,38,.07), 0 26px 50px -22px rgba(23,18,38,.4);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink);background:
+    radial-gradient(1100px 520px at 88% -8%, #efe7ff 0%, transparent 60%),
+    radial-gradient(900px 460px at -10% 12%, #e6fbf3 0%, transparent 55%), var(--bg);
+    line-height:1.55;-webkit-font-smoothing:antialiased}
+  a{color:var(--violet)}
+  .wrap{max-width:1080px;margin:0 auto;padding:18px 18px 60px}
+
+  /* ---------- top bar ---------- */
+  .top{display:flex;align-items:center;gap:12px;padding:6px 0 22px;flex-wrap:wrap}
+  .mark{width:40px;height:40px;border-radius:13px;background:linear-gradient(145deg,var(--violet),#9a7cff);
+    display:grid;place-items:center;color:#fff;font-weight:800;font-size:20px;letter-spacing:-.5px;
+    box-shadow:0 8px 20px -8px rgba(110,86,207,.75)}
+  .brand{font-weight:800;font-size:19px;letter-spacing:-.3px}
+  .brand small{display:block;font-weight:500;font-size:11.5px;color:var(--muted);letter-spacing:.02em}
+  .pill{margin-left:auto;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+    color:var(--violet);background:var(--soft);border:1px solid #ded6fb;padding:6px 11px;border-radius:999px}
+
+  /* ---------- hero ---------- */
+  .hero{display:grid;grid-template-columns:1.15fr .85fr;gap:26px;align-items:center;padding:14px 0 26px}
+  .hero h1{margin:0 0 10px;font-size:clamp(26px,3.6vw,38px);line-height:1.12;letter-spacing:-.8px}
+  .hero h1 em{font-style:normal;background:linear-gradient(100deg,var(--violet),var(--mint));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .hero p{margin:0 0 16px;color:var(--ink2);font-size:15px;max-width:46ch}
+  .hero-art{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:14px;box-shadow:var(--shadow)}
+  .art-row{display:flex;gap:8px;align-items:flex-start;margin-bottom:8px}
+  .bub{font-size:13px;padding:9px 12px;border-radius:14px;max-width:82%}
+  .bub.in{background:var(--soft);color:var(--ink2);border-bottom-left-radius:5px}
+  .bub.out{background:var(--violet);color:#fff;margin-left:auto;border-bottom-right-radius:5px}
+  .art-note{font-size:11.5px;color:var(--muted);text-align:center;margin-top:6px}
+
+  /* ---------- tabs ---------- */
+  .tabs{display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:999px;padding:4px;gap:4px;box-shadow:var(--shadow);margin-bottom:18px}
+  .tabs button{border:0;background:transparent;padding:9px 16px;border-radius:999px;font:inherit;font-size:13.5px;font-weight:650;color:var(--muted);cursor:pointer}
+  .tabs button[aria-selected="true"]{background:var(--violet);color:#fff;box-shadow:0 8px 18px -10px rgba(110,86,207,.9)}
+
+  /* ---------- cards / steps ---------- */
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px;box-shadow:var(--shadow)}
+  .steps{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+  .steps span{font-size:11.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);
+    background:#fff;border:1px solid var(--line);padding:6px 11px;border-radius:999px}
+  .steps span.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  label{display:block;font-size:12px;font-weight:700;letter-spacing:.02em;color:var(--ink2);margin-bottom:5px}
+  input,textarea,select{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:12px;font:inherit;font-size:14px;background:#fdfcff;color:var(--ink)}
+  input:focus,textarea:focus,select:focus{outline:0;border-color:var(--violet);box-shadow:0 0 0 3px rgba(110,86,207,.16)}
+  textarea{min-height:74px;resize:vertical}
+  .field{margin-bottom:14px}
+  .hint{font-size:11.5px;color:var(--muted);margin-top:5px}
+  .row{display:grid;grid-template-columns:1.6fr .8fr .3fr;gap:8px;margin-bottom:8px}
+  .row.faq{grid-template-columns:1fr 1.4fr .3fr}
+  .del{border:1px solid var(--line);background:#fff;border-radius:10px;color:#b4375c;font-size:16px;cursor:pointer;line-height:1}
+  .add{background:var(--soft);border:1px dashed #cdc0f7;color:var(--violet-d);font:inherit;font-size:13px;font-weight:700;padding:9px 12px;border-radius:12px;cursor:pointer;margin-bottom:16px}
+  .acts{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+  button.primary{background:var(--violet);color:#fff;border:0;border-radius:12px;padding:12px 20px;font:inherit;font-weight:750;font-size:14.5px;cursor:pointer;box-shadow:0 10px 22px -12px rgba(110,86,207,.95)}
+  button.primary:hover{background:var(--violet-d)}
+  button.ghost{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 18px;font:inherit;font-weight:650;font-size:14px;cursor:pointer;color:var(--ink2)}
+  details.adv{margin-top:4px;border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:#fdfcff}
+  details.adv summary{cursor:pointer;font-size:13px;font-weight:700;color:var(--ink2)}
+
+  /* ---------- result ---------- */
+  .result{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .phone{background:#0e0a18;border-radius:22px;padding:10px;box-shadow:var(--shadow-lift)}
+  .phone-top{display:flex;gap:10px;align-items:center;padding:10px 12px;background:#181228;border-radius:14px;color:#fff}
+  .phone-top .av{width:34px;height:34px;border-radius:50%;background:linear-gradient(145deg,var(--violet),#9a7cff);display:grid;place-items:center;font-weight:800;font-size:14px}
+  .phone-top b{font-size:13.5px;display:block;line-height:1.2}
+  .phone-top small{font-size:11px;color:#9be7c9}
+  .chat{height:330px;overflow:auto;padding:12px 6px;display:flex;flex-direction:column;gap:8px;background:#120d20;border-radius:14px;margin:8px 0}
+  .chat .bub.out{background:#2a8f68}
+  .chat .bub.in{background:#241b3a;color:#e9e4ff}
+  .chat .bub{font-size:13.2px;line-height:1.45;white-space:pre-wrap}
+  .chat .t{font-size:10px;color:#8c83a8;margin-left:auto}
+  .chips{display:flex;gap:6px;overflow:auto;padding-bottom:6px}
+  .chips button{white-space:nowrap;font:inherit;font-size:11.5px;padding:6px 10px;border-radius:999px;border:1px solid #342a4e;background:#1b1430;color:#cfc7e8;cursor:pointer}
+  .send{display:flex;gap:6px;align-items:center}
+  .send input{background:#1b1430;border-color:#342a4e;color:#fff;border-radius:999px;padding:10px 14px;font-size:13.5px}
+  .send button{width:42px;height:42px;border-radius:50%;border:0;background:var(--mint);color:#062a1e;font-size:16px;font-weight:800;cursor:pointer;flex:none}
+  .kit{display:flex;flex-direction:column;gap:10px;max-height:430px;overflow:auto;padding-right:4px}
+  .kitcard{border:1px solid var(--line);border-radius:14px;padding:12px;background:#fdfcff}
+  .kitcard header{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+  .kitcard h4{margin:0;font-size:13px;letter-spacing:.01em}
+  .kitcard button{margin-left:auto;font:inherit;font-size:11.5px;font-weight:700;border:1px solid #ded6fb;background:#fff;color:var(--violet-d);border-radius:9px;padding:5px 9px;cursor:pointer}
+  .kitcard p{margin:0;font-size:12.8px;color:var(--ink2);white-space:pre-wrap}
+  .kitcard .where{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-top:7px}
+
+  /* ---------- todos ---------- */
+  .todo-add{display:flex;gap:8px;margin-bottom:14px}
+  .todo-add input{flex:1}
+  .todo-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px}
+  .todo-list li{display:flex;gap:10px;align-items:center;background:#fdfcff;border:1px solid var(--line);border-radius:12px;padding:11px 12px}
+  .todo-list li.done{background:#f4f2fa;border-color:#eee9f9}
+  .todo-list li.done .tt{text-decoration:line-through;color:var(--muted)}
+
+  .modeWrap{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 16px}
+  .modeLabel{font-size:12px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-right:2px}
+  .modeBtn{font:700 13px/1 inherit;padding:10px 14px;border-radius:999px;border:1px solid var(--line);background:#fff;color:#4b4560;cursor:pointer}
+  .modeBtn.on{background:var(--violet);color:#fff;border-color:var(--violet);box-shadow:0 6px 16px -8px rgba(110,86,207,.8)}
+  .opt{color:var(--muted);font-weight:600;text-transform:none;letter-spacing:0}
+  .tick{width:22px;height:22px;border-radius:7px;border:2px solid #cfc6e9;background:#fff;cursor:pointer;flex:none;display:grid;place-items:center;color:#fff;font-size:13px;font-weight:800}
+  .tick.on{background:var(--mint);border-color:var(--mint)}
+  .tt{font-size:14px}
+  .when{font-size:11px;color:var(--muted)}
+  .rm{margin-left:auto;border:0;background:transparent;color:#b4375c;font-size:16px;cursor:pointer}
+  .progress{height:8px;border-radius:999px;background:#ece7f9;overflow:hidden;margin:12px 0 4px}
+  .progress i{display:block;height:100%;background:linear-gradient(90deg,var(--violet),var(--mint));width:0;transition:width .35s ease}
+  .empty{text-align:center;color:var(--muted);font-size:13.5px;padding:26px 10px}
+
+  footer{margin-top:34px;text-align:center;font-size:12px;color:var(--muted)}
+  .toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);background:var(--ink);color:#fff;font-size:13px;padding:10px 16px;border-radius:999px;opacity:0;pointer-events:none;transition:.25s;z-index:9}
+  .toast.on{opacity:1;transform:translate(-50%,0)}
+
+  @media (max-width:880px){
+    .hero{grid-template-columns:1fr}
+    .hero-art{order:-1}
+    .result{grid-template-columns:1fr}
+    .grid2{grid-template-columns:1fr}
+    .row,.row.faq{grid-template-columns:1fr 1fr auto}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="top">
+    <div class="mark">e</div>
+    <div class="brand">Eddie<small>WhatsApp assistant + to-dos for small business</small></div>
+    <div class="pill">Free to set up</div>
+  </div>
+
+  <section class="hero" id="hero">
+    <div>
+      <h1>Your business answers WhatsApp, <em>even when your hands are full</em></h1>
+      <p>Fill in your prices, hours and delivery once. Eddie writes your greeting, away message and quick replies, then answers customers in seconds. And because you are busy, Eddie also keeps your to-do list.</p>
+      <div class="acts">
+        <button class="primary" id="startBtn">Set up my assistant</button>
+        <button class="ghost" id="todoJump">Open my to-dos</button>
+      </div>
+    </div>
+    <div class="hero-art">
+      <div class="art-row"><div class="bub in">How much is the small bag of rice?</div></div>
+      <div class="art-row"><div class="bub out">Small bag is ₦9,500. Delivery in Uyo is ₦1,500, free above ₦20,000. Should I keep one for you?</div></div>
+      <div class="art-row"><div class="bub in">Yes, and do you open on Sunday?</div></div>
+      <div class="art-row"><div class="bub out">We open Mon to Sat, 8am to 7pm. I have noted one bag for you — pickup or delivery?</div></div>
+      <div class="art-note">Every reply comes from the owner's own prices and rules. No made-up answer.</div>
+    </div>
+  </section>
+
+  <div class="tabs" role="tablist">
+    <button role="tab" id="tabA" aria-selected="true">Assistant</button>
+    <button role="tab" id="tabT" aria-selected="false">My to-dos</button>
+  </div>
+
+  <!-- ================= ASSISTANT ================= -->
+  <div id="paneAssistant">
+    <div class="steps" id="stepBar">
+      <span data-s="1" class="on">1 · Your business</span>
+      <span data-s="2">2 · What you sell</span>
+      <span data-s="3">3 · Your assistant</span>
+    </div>
+
+    <!-- step 1 -->
+    <div class="card" id="step1">
+      <div class="modeWrap">
+        <span class="modeLabel">Who is this for?</span>
+        <button type="button" class="modeBtn on" id="modeBiz">My business or service</button>
+        <button type="button" class="modeBtn" id="modeMe">Just me (personal)</button>
+      </div>
+      <div class="grid2">
+        <div class="field">
+          <label for="biz" id="bizLabel">Business name <span class="opt">(optional)</span></label>
+          <input id="biz" placeholder="Mama Nkechi Pharmacy — or leave blank" autocomplete="organization" />
+        </div>
+        <div class="field">
+          <label for="assistName">What should your assistant be called?</label>
+          <input id="assistName" placeholder="Eddie" value="Eddie" />
+          <div class="hint">Default is Eddie. Name it after yourself if you prefer.</div>
+        </div>
+        <div class="field">
+          <label for="kind" id="kindLabel">Type of business or role</label>
+          <select id="kind">
+            <optgroup label="Retail and trade">
+              <option>Pharmacy</option><option>Provisions and groceries</option><option>Food and drinks</option>
+              <option>Fashion and tailoring</option><option>Beauty and salon</option><option>Electronics and phone shop</option>
+              <option>Building materials</option><option>Printing and business centre</option><option>Furniture and interior</option>
+              <option>Car parts and mechanic</option><option>Bookshop and stationery</option><option>Jewellery and accessories</option>
+              <option>Farm produce and agro</option><option>Cosmetics and skincare</option><option>Supermarket</option>
+            </optgroup>
+            <optgroup label="Professional services">
+              <optgroup label="Engineering">
+              <option>Engineer (general)</option><option>Chemical engineer</option><option>Civil engineer</option>
+              <option>Mechanical engineer</option><option>Electrical engineer</option><option>Electronics engineer</option>
+              <option>Software engineer</option><option>Petroleum engineer</option><option>Gas engineer</option>
+              <option>Mining engineer</option><option>Agricultural engineer</option><option>Structural engineer</option>
+              <option>Environmental engineer</option><option>Biomedical engineer</option><option>Mechatronics engineer</option>
+              <option>Computer engineer</option><option>Telecommunications engineer</option><option>Metallurgical engineer</option>
+              <option>Industrial engineer</option><option>Production engineer</option><option>Water and sanitation engineer</option>
+              <option>Geotechnical engineer</option><option>Marine engineer</option><option>Automotive engineer</option>
+              <option>Aeronautical engineer</option>
+            </optgroup>
+            <optgroup label="Law and medicine">
+              <option>Lawyer (litigation)</option><option>Lawyer (corporate)</option><option>Legal consultant</option>
+              <option>Paralegal</option><option>Doctor (general practice)</option><option>Doctor (specialist)</option>
+              <option>Dentist</option><option>Optometrist</option><option>Midwife</option><option>Lab scientist</option>
+            </optgroup>
+            <option>Doctor or clinic</option><option>Nurse or care giver</option>
+              <option>Pharmacist</option><option>Accountant or auditor</option><option>Architect</option><option>Surveyor</option>
+              <option>Quantity surveyor</option><option>Insurance agent</option><option>Real estate agent</option><option>Landlord or caretaker</option>
+              <option>Banker or loan officer</option><option>Tax consultant</option><option>HR consultant</option>
+              <option>Business consultant</option><option>Project manager</option><option>Event planner</option>
+            </optgroup>
+            <optgroup label="Education and training">
+              <option>Teacher</option><option>School or academy</option><option>Tutor or lesson teacher</option>
+              <option>Lesson centre</option><option>Exam prep coach</option><option>Trainer or facilitator</option>
+              <option>ICT instructor</option><option>Researcher or academic</option>
+            </optgroup>
+            <optgroup label="Technology and creative">
+              <option>Software developer</option><option>Data analyst</option><option>Graphic designer</option>
+              <option>Photographer or videographer</option><option>Content creator</option><option>Social media manager</option>
+              <option>Copywriter</option><option>Web designer</option><option>Digital marketer</option><option>IT support</option>
+            </optgroup>
+            <optgroup label="Health and wellness">
+              <option>Laboratory</option><option>Physiotherapist</option><option>Nutritionist</option>
+              <option>Gym or fitness coach</option><option>Masseuse or spa</option><option>Barber</option><option>Caterer</option>
+            </optgroup>
+            <optgroup label="Transport and logistics">
+              <option>Logistics or dispatch</option><option>Rider</option><option>Driver or car hire</option>
+              <option>Travel agent</option><option>Clearing and forwarding</option><option>Courier</option>
+            </optgroup>
+            <optgroup label="Faith, community and non-profit">
+              <option>Church or ministry</option><option>Mosque or Islamic centre</option><option>NGO or foundation</option>
+              <option>Association or cooperative</option><option>Student union</option><option>Community group</option>
+            </optgroup>
+            <optgroup label="Personal use (no business)">
+              <option>Personal assistant</option><option>Student</option><option>Job seeker</option>
+              <option>Freelancer</option><option>Parent</option><option>Creator (personal brand)</option><option>Volunteer or organiser</option>
+            </optgroup>
+            <optgroup label="Other">
+              <option>Other</option>
+            </optgroup>
+          </select>
+        </div>
+        <div class="field">
+          <label for="town">Town and state</label>
+          <input id="town" placeholder="Uyo, Akwa Ibom" />
+        </div>
+        <div class="field">
+          <label for="hours">Opening hours</label>
+          <input id="hours" placeholder="Mon to Sat, 8am to 7pm" />
+        </div>
+        <div class="field">
+          <label for="phone">WhatsApp number (with country code, no +)</label>
+          <input id="phone" placeholder="2348023123838" inputmode="numeric" />
+        </div>
+      </div>
+      <div class="field" id="payWrap">
+        <label for="pay">How do customers pay?</label>
+        <input id="pay" placeholder="Cash, or transfer to 0123456789 (Zenith Bank)" />
+      </div>
+      <div class="field" id="deliverWrap">
+        <label for="deliver">Delivery and pickup rules</label>
+        <textarea id="deliver" placeholder="Delivery inside Uyo is ₦1,500, free above ₦20,000. Pickup at the shop from 9am."></textarea>
+      </div>
+
+      <details class="adv">
+        <summary>Advanced · connect a real AI model (optional)</summary>
+        <div class="field" style="margin-top:12px">
+          <label for="aiUrl">Endpoint (OpenAI-compatible)</label>
+          <input id="aiUrl" placeholder="https://api.openai.com/v1/chat/completions" />
+          <div class="hint">Groq, OpenAI, Together and most providers use this shape.</div>
+        </div>
+        <div class="grid2">
+          <div class="field">
+            <label for="aiModel">Model</label>
+            <input id="aiModel" placeholder="gpt-4o-mini" />
+          </div>
+          <div class="field">
+            <label for="aiKey">API key</label>
+            <input id="aiKey" type="password" placeholder="sk-..." autocomplete="off" />
+          </div>
+        </div>
+        <div class="hint">The key is saved only in this browser on this device. For a shop you are selling to, keep AI mode off and use the scripted replies — they are free, instant and never invent a price.</div>
+      </details>
+
+      <div class="acts">
+        <button class="ghost" id="tplBtn" title="Pre-fill prices and questions for your role">Fill starter answers</button>
+        <button class="primary" id="toStep2">Next: what you sell</button>
+      </div>
+    </div>
+
+    <!-- step 2 -->
+    <div class="card" id="step2" hidden>
+      <h3 id="step2Title" style="margin:0 0 4px;font-size:17px">What do customers ask you most?</h3>
+      <p id="step2Sub" style="margin:0 0 16px;color:var(--muted);font-size:13.5px">Add your products with prices, then the questions you answer every day. Eddie answers them by itself.</p>
+      <div id="itemsWrap">
+        <label>Products or services and prices</label>
+        <div id="items"></div>
+        <button class="add" id="addItem">+ Add product</button>
+      </div>
+      <label>Common questions and your answers</label>
+      <div id="faqs"></div>
+      <button class="add" id="addFaq">+ Add question</button>
+      <div class="acts">
+        <button class="ghost" id="backStep1">Back</button>
+        <button class="primary" id="build">Build my assistant</button>
+      </div>
+    </div>
+
+    <!-- step 3 -->
+    <div id="step3" hidden>
+      <div class="result">
+        <div class="card">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+            <h3 style="margin:0;font-size:16px">Try it like a customer</h3>
+            <button class="ghost" id="editBtn" style="margin-left:auto;padding:7px 12px;font-size:12.5px">Edit details</button>
+            <button class="ghost" id="backupBtn" style="padding:7px 12px;font-size:12.5px">Move to another phone</button>
+          </div>
+          <p style="margin:0 0 10px;color:var(--muted);font-size:12.5px">Type what a customer would type. This is exactly how Eddie replies.</p>
+          <div class="phone">
+            <div class="phone-top">
+              <div class="av" id="pav">M</div>
+              <div><b id="pname">Your business</b><small id="pstatus">online · replies instantly</small></div>
+            </div>
+            <div class="chat" id="chat"></div>
+            <div class="chips" id="chips"></div>
+            <div class="send">
+              <input id="chatText" placeholder="Type a message" aria-label="Type a message" />
+              <button id="micBtn" aria-label="Speak instead of typing" title="Speak instead of typing" style="background:#efe9ff;color:#5a3fd6;border:0">&#127908;</button>
+              <button id="chatSend" aria-label="Send">➤</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="margin:0 0 4px;font-size:16px">Your copy-and-paste kit</h3>
+          <p style="margin:0 0 12px;color:var(--muted);font-size:12.5px">Paste these into WhatsApp Business: Settings, then Business tools.</p>
+          <div class="kit" id="kit"></div>
+          <div class="acts" style="margin-top:12px">
+            <button class="primary" id="download">Download my kit</button>
+            <button class="ghost" id="waLink">Open my chat link</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= TODOS ================= -->
+  <div id="paneTodo" hidden>
+    <div class="card">
+      <h3 style="margin:0 0 2px;font-size:17px">My to-dos</h3>
+      <p style="margin:0 0 14px;color:var(--muted);font-size:13px">Restock, call the supplier, send that invoice. Saved on this device, no account needed.</p>
+      <div class="todo-add">
+        <input id="todoText" placeholder="What needs doing today?" />
+        <button class="primary" id="todoAddBtn">Add</button>
+      </div>
+      <div class="progress"><i id="todoBar"></i></div>
+      <p style="margin:0 0 12px;font-size:12px;color:var(--muted)" id="todoCount">No tasks yet</p>
+      <ul class="todo-list" id="todoList"></ul>
+      <div class="acts" style="margin-top:14px">
+        <button class="ghost" id="todoClear">Clear finished</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>Eddie · built for small businesses that live on WhatsApp · nothing leaves this device unless you switch AI mode on</footer>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="/templates.js"></script>
+<script>
+(function(){
+  var $=function(s,r){return (r||document).querySelector(s)};
+  var $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
+  var KEY='eddie.biz.v1', TKEY='eddie.todos.v1', state=null, todos=[], MODE='business';
+
+  function toast(msg){var t=$('#toast'); t.textContent=msg; t.classList.add('on'); clearTimeout(t._h); t._h=setTimeout(function(){t.classList.remove('on')},1900);}
+  function save(obj){try{localStorage.setItem(KEY,JSON.stringify(obj))}catch(e){}}
+  function load(){try{return JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){return null}}
+  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+
+  /* ---------------- flow ---------------- */
+  function showStep(n){
+    $('#step1').hidden=n!==1; $('#step2').hidden=n!==2; $('#step3').hidden=n!==3;
+    $$('#stepBar span').forEach(function(s){s.classList.toggle('on',+s.dataset.s===n)});
+    $('#hero').style.display=n===3?'none':'';
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+  $('#startBtn').onclick=function(){showStep(1)};
+  $('#modeBiz').onclick=function(){setMode('business')};
+  $('#modeMe').onclick=function(){setMode('personal')};
+
+  /* ---------------- items + faqs ---------------- */
+  function addItemRow(name,price){
+    var d=document.createElement('div'); d.className='row';
+    d.innerHTML='<input placeholder="Product or service" value="'+esc(name||'')+'"><input placeholder="Price (₦)" value="'+esc(price||'')+'" inputmode="decimal"><button class="del" aria-label="Remove">×</button>';
+    d.querySelector('.del').onclick=function(){d.remove()};
+    $('#items').appendChild(d);
+  }
+  function addFaqRow(q,a){
+    var d=document.createElement('div'); d.className='row faq';
+    d.innerHTML='<input placeholder="Customer question" value="'+esc(q||'')+'"><input placeholder="Your answer" value="'+esc(a||'')+'"><button class="del" aria-label="Remove">×</button>';
+    d.querySelector('.del').onclick=function(){d.remove()};
+    $('#faqs').appendChild(d);
+  }
+  $('#addItem').onclick=function(){addItemRow()};
+  $('#addFaq').onclick=function(){addFaqRow()};
+
+  function collect(){
+    var items=$$('#items .row').map(function(r){var i=r.querySelectorAll('input');return {n:i[0].value.trim(),p:i[1].value.trim()}}).filter(function(x){return x.n});
+    var faqs=$$('#faqs .row').map(function(r){var i=r.querySelectorAll('input');return {q:i[0].value.trim(),a:i[1].value.trim()}}).filter(function(x){return x.q&&x.a});
+    return {
+      biz:$('#biz').value.trim(), mode:MODE,
+      assist:$('#assistName').value.trim()||'Eddie',
+      kind:$('#kind').value, town:$('#town').value.trim(),
+      hours:$('#hours').value.trim(), phone:$('#phone').value.replace(/\D/g,''),
+      pay:$('#pay').value.trim(), deliver:$('#deliver').value.trim(),
+      items:items, faqs:faqs,
+      ai:{url:$('#aiUrl').value.trim(), model:$('#aiModel').value.trim(), key:$('#aiKey').value.trim()}
+    };
+  }
+
+  $('#toStep2').onclick=function(){
+    var s=collect();
+    if(MODE==='business' && !s.biz){toast('Add a business name, or switch to personal');$('#biz').focus();return;}
+    save(s); showStep(2);
+  };
+  $('#backStep1').onclick=function(){showStep(1)};
+  $('#build').onclick=function(){
+    var s=collect(); if(!s.items.length && s.mode!=='personal'){s.items=[{n:'Ask us about our products',p:''}]}
+    save(s); render(s); showStep(3); toast('Assistant ready');
+  };
+  $('#editBtn').onclick=function(){
+    if(state){fill(state)}
+    showStep(1);
+  };
+
+  function fill(s){
+    setMode(s.mode==='personal'?'personal':'business');
+    $('#biz').value=s.biz||'';
+    $('#assistName').value=s.assist||'Eddie';
+    $('#kind').value=s.kind||'Pharmacy'; $('#town').value=s.town||'';
+    $('#hours').value=s.hours||''; $('#phone').value=s.phone||'';
+    $('#pay').value=s.pay||''; $('#deliver').value=s.deliver||'';
+    $('#aiUrl').value=(s.ai&&s.ai.url)||''; $('#aiModel').value=(s.ai&&s.ai.model)||''; $('#aiKey').value=(s.ai&&s.ai.key)||'';
+    $('#items').innerHTML=''; (s.items||[]).forEach(function(i){addItemRow(i.n,i.p)});
+    if(!$('#items').children.length) addItemRow();
+    $('#faqs').innerHTML=''; (s.faqs||[]).forEach(function(f){addFaqRow(f.q,f.a)});
+    if(!$('#faqs').children.length) addFaqRow();
+  }
+
+
+  /* ---------------- starter templates ---------------- */
+  function tplFor(role){
+    var T=window.EDDIE_TEMPLATES||{}, key=(role||'').toLowerCase();
+    for(var k in T){
+      if(!T.hasOwnProperty(k)) continue;
+      var keys=T[k].keys||[];
+      for(var i=0;i<keys.length;i++){ if(key.indexOf(keys[i])>-1) return T[k]; }
+    }
+    return T.personal||null;
+  }
+  function applyTemplate(role){
+    var t=tplFor(role);
+    if(!t){toast('No starter answers for that role yet');return;}
+    $('#items').innerHTML=''; (t.items||[]).forEach(function(i){addItemRow(i.n,i.p)});
+    if(!(t.items||[]).length) addItemRow();
+    $('#faqs').innerHTML=''; (t.faqs||[]).forEach(function(f){addFaqRow(f.q,f.a)});
+    toast('Starter answers loaded, edit them in your own words');
+  }
+
+  /* ---------------- voice input ---------------- */
+  function initVoice(){
+    var btn=$('#micBtn'), SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+    if(!btn) return;
+    if(!SR){ btn.style.display='none'; return; }
+    var rec=new SR(); rec.lang='en-NG'; rec.interimResults=false; rec.maxAlternatives=1;
+    var on=false;
+    btn.onclick=function(){
+      if(on){ try{rec.stop()}catch(e){} return; }
+      try{ rec.start(); on=true; btn.classList.add('rec'); toast('Listening, speak now'); }catch(e){ toast('Microphone not available'); }
+    };
+    rec.onresult=function(e){
+      var txt=e.results[0][0].transcript;
+      var box=$('#chatText'); if(box){ box.value=txt; $('#chatSend').click(); }
+    };
+    rec.onend=function(){ on=false; btn.classList.remove('rec'); };
+    rec.onerror=function(){ on=false; btn.classList.remove('rec'); toast('Could not hear you, try again'); };
+  }
+
+  /* ---------------- backup / restore ---------------- */
+  function setupCode(){
+    var st=load(); if(!st) return '';
+    try{ return btoa(unescape(encodeURIComponent(JSON.stringify(st)))); }catch(e){ return ''; }
+  }
+  function wireExtras(){
+    var tb=$('#tplBtn');
+    if(tb) tb.onclick=function(){ applyTemplate($('#kind').value); };
+    var bb=$('#backupBtn');
+    if(bb) bb.onclick=function(){
+      var code=setupCode();
+      if(!code){ toast('Finish your setup first'); return; }
+      try{ navigator.clipboard.writeText(code); toast('Setup code copied, paste it on the other phone'); }
+      catch(e){ prompt('Copy this setup code:', code); }
+    };
+    initVoice();
+  }
+
+  /* ---------------- the reply engine ---------------- */
+  function money(p){
+    if(!p) return '';
+    var n=parseFloat(String(p).replace(/[^0-9.]/g,''));
+    if(isNaN(n)) return String(p);
+    return '₦'+n.toLocaleString('en-NG');
+  }
+  function priceList(s,limit){
+    var list=(s.items||[]).slice(0,limit||3).map(function(i){return '• '+i.n+' — '+money(i.p)});
+    return list.join('\n');
+  }
+  function words(t){return String(t||'').toLowerCase().replace(/[^a-z0-9₦\s]/g,' ').split(/\s+/).filter(Boolean)}
+  function score(a,b){
+    var wb=words(b), n=0;
+    words(a).forEach(function(w){ if(w.length>2 && wb.indexOf(w)>-1) n++; });
+    return n;
+  }
+
+  function reply(s,text){
+    var t=String(text||'').toLowerCase().trim();
+    var name=s.assist||'Eddie';
+    if(s.mode==='personal'){
+      if(/^(hi|hello|hey|good (morning|afternoon|evening)|how far)\b/.test(t)||t==='hi')
+        return 'Hi 👋 This is '+name+'. How can I help?';
+      if(/price|how much|cost|rate/.test(t)) return 'Let me confirm that and come back to you. What exactly do you need?';
+      if(/where|location|address|come/.test(t)) return s.town ? 'I am around '+s.town+'. I will send the exact place when we speak.' : 'I will send the exact place when we speak.';
+      if(/open|free|time|hours|available|busy/.test(t)) return s.hours ? 'Usually free '+s.hours+'. What time works for you?' : 'Tell me a good time and I will confirm.';
+      if(/pay|transfer|account|cash/.test(t)) return 'Let us sort that when we speak, so nothing gets mixed up.';
+    }
+
+    /* greetings */
+    if(/^(hi|hello|hey|good (morning|afternoon|evening)|how far|wetin dey|abeg)\b/.test(t)||t==='hi'){
+      return 'Hello and welcome to '+s.biz+' 👋\n'+(s.hours?'We are open '+s.hours+'. ':'')+'Tell me what you need and I will help with prices, delivery and payment.';
+    }
+    /* price of a specific product */
+    var best=null,bestScore=0;
+    (s.items||[]).forEach(function(i){
+      var sc=score(t,i.n);
+      if(sc>bestScore){bestScore=sc;best=i}
+    });
+    if(best && bestScore>0 && /price|how much|cost|naira|₦|sell|buy|available|need|want/.test(t)){
+      return best.n+' is '+money(best.p)+'.'+(s.deliver?'\n\n'+s.deliver:'')+'\n\nHow many do you need?';
+    }
+    /* price list */
+    if(/price|how much|cost|rate|list/.test(t) && !best){
+      return 'Our prices:\n'+priceList(s,4)+(s.pay?'\n\nPayment: '+s.pay:'')+'\n\nAnything there you want to order?';
+    }
+    /* location */
+    if(/where|address|location|shop|come|direction|find you/.test(t)){
+      return 'We are in '+(s.town||'town')+'.'+(s.deliver?'\n'+s.deliver:'')+'\n\nShould I keep your order aside?';
+    }
+    /* hours */
+    if(/open|close|time|hours|today|sunday|saturday/.test(t)){
+      return 'Our opening hours: '+(s.hours||'please ask us')+'. If you message outside these hours, I will still note your order and we reply first thing.';
+    }
+    /* payment */
+    if(/pay|payment|transfer|account|pos|card|cash|money/.test(t)){
+      return s.pay?'You can pay like this: '+s.pay+'\n\nSend the receipt here and I will confirm your order.':'Please ask us for the payment details and we will send them right away.';
+    }
+    /* delivery */
+    if(/deliver|delivery|bring|send|dispatch|pick ?up|transport/.test(t)){
+      return s.deliver||'Tell me your area and I will confirm delivery.';
+    }
+    /* human */
+    if(/owner|manager|boss|human|person|call|speak|talk to/.test(t)){
+      return 'Of course. I have noted this for the owner'+(s.phone?' — you can also call '+s.phone.replace(/^(\d{3})(\d{3})(\d{4})$/, '+$1 $2 $3'):'')+'. What is the best time to reach you?';
+    }
+    /* FAQs */
+    var fbest=null,fs=0;
+    (s.faqs||[]).forEach(function(f){var sc=score(t,f.q); if(sc>fs){fs=sc;fbest=f}});
+    if(fbest && fs>0) return fbest.a;
+    /* thanks / bye */
+    if(/thank|thanks|ok|okay|alright|fine/.test(t)) return 'You are welcome. Message me anytime, '+ (s.biz||'we') +' is here.';
+
+    /* fallback */
+    if(s.mode==='personal') return 'Noted, thank you. I have passed it on and '+(s.biz? person(s) : 'it')+' will get back to you shortly.';
+    return 'I can help with prices, location, opening hours, payment and delivery.\n\n'+priceList(s,3)+'\n\nWhich one do you want to ask about?';
+  }
+
+  /* optional AI mode for questions outside the script */
+  function aiReply(s,text){
+    var ai=s.ai||{};
+    if(!ai.key||!ai.url) return Promise.resolve(null);
+    var sys='You are '+ (s.assist||'Eddie') +', the WhatsApp assistant for '+s.biz+' in '+(s.town||'Nigeria')+'. '+
+      'Answer in short WhatsApp style, warm and plain. Never invent prices or promises. Facts: hours '+(s.hours||'unknown')+
+      '. Payment: '+(s.pay||'ask us')+'. Delivery: '+(s.deliver||'ask us')+'. Products: '+
+      (s.items||[]).map(function(i){return i.n+' at '+money(i.p)}).join(', ')+
+      '. If you do not know, ask the customer to wait for the owner.';
+    return fetch(ai.url,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+ai.key},
+      body:JSON.stringify({model:ai.model||'gpt-4o-mini',messages:[{role:'system',content:sys},{role:'user',content:text}],max_tokens:220})})
+      .then(function(r){return r.json()})
+      .then(function(d){return d&&d.choices&&d.choices[0]?d.choices[0].message.content.trim():null})
+      .catch(function(){return null});
+  }
+
+  /* ---------------- chat UI ---------------- */
+  function bub(html,cls){
+    var d=document.createElement('div'); d.className='bub '+cls;
+    d.innerHTML=esc(html).replace(/\n/g,'<br>');
+    var t=document.createElement('div'); t.className='t';
+    t.textContent=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    d.appendChild(t); return d;
+  }
+  function push(html,cls){var c=$('#chat'); c.appendChild(bub(html,cls)); c.scrollTop=c.scrollHeight;}
+
+  function sendText(txt){
+    txt=(txt||'').trim(); if(!txt) return;
+    push(txt,'out');
+    var s=state;
+    push('…','in');
+    var c=$('#chat'); var typing=c.lastChild;
+    var answer=reply(s,txt);
+    var generic=/Which one do you want to ask about\?$/.test(answer);
+    var finish=function(text){
+      if(typing&&typing.parentNode) typing.parentNode.removeChild(typing);
+      push(text,'in');
+    };
+    if(generic){
+      aiReply(s,txt).then(function(ai){finish(ai||answer)});
+    } else {
+      setTimeout(function(){finish(answer)}, 380 + Math.random()*260);
+    }
+  }
+
+  /* ---------------- kit ---------------- */
+  function kit(s){
+    if(s.mode==='personal') return personalKit(s);
+    var greet='Hello and welcome to '+s.biz+' 👋'+(s.hours?' We are open '+s.hours+'.':'')+' Tell me what you need and I will help you with prices, delivery and payment.';
+    var away='Thanks for your message. We have closed for today and will reply first thing.'+(s.hours?' Open hours: '+s.hours+'.':'')+(s.town?' Find us in '+s.town+'.':'')+' If it is urgent, please call us.';
+    var prices='Our prices:\n'+priceList(s,6)+'\n\nAnything there you want to order?';
+    var pays=s.pay?'How to pay: '+s.pay:'Ask us for payment details.';
+    var dels=s.deliver?s.deliver:'Tell us your area and we will confirm delivery.';
+    var order='Please send:\n1. What you want\n2. Quantity\n3. Your address\n4. Your phone number\n\nWe confirm price and delivery time right away.';
+    return [
+      {h:'Greeting message',p:greet,w:'Settings · Business tools · Greeting message'},
+      {h:'Away message',p:away,w:'Settings · Business tools · Away message'},
+      {h:'Quick reply · Price list',p:prices,w:'Quick replies'},
+      {h:'Quick reply · How to pay',p:pays,w:'Quick replies'},
+      {h:'Quick reply · Delivery',p:dels,w:'Quick replies'},
+      {h:'Quick reply · How to order',p:order,w:'Quick replies'},
+      {h:'Question we answer for you',p:priceList(s,4),w:s.assist||'Eddie'}
+    ];
+  }
+
+
+  function setMode(m){
+    MODE = m;
+    var me = m === 'personal';
+    var q = function(sel){ return document.querySelector(sel); };
+    var mb = q('#modeBiz'), mm = q('#modeMe');
+    if (mb) mb.classList.toggle('on', !me);
+    if (mm) mm.classList.toggle('on', me);
+    var bl = q('#bizLabel'); if (bl) bl.textContent = me ? 'Your name (optional)' : 'Business name';
+    var kl = q('#kindLabel'); if (kl) kl.textContent = me ? 'What describes you best?' : 'Type of business or role';
+    var pw = q('#payWrap'), dw = q('#deliverWrap'), iw = q('#itemsWrap');
+    if (pw) pw.hidden = me;
+    if (dw) dw.hidden = me;
+    if (iw) iw.hidden = me;
+    var spans = document.querySelectorAll('#stepBar span');
+    for (var i = 0; i < spans.length; i++) {
+      var n = i + 1;
+      spans[i].textContent = me
+        ? (n === 1 ? '1 \u00b7 You' : n === 2 ? '2 \u00b7 What you know' : '3 \u00b7 Your assistant')
+        : (n === 1 ? '1 \u00b7 Your business' : n === 2 ? '2 \u00b7 What you sell' : '3 \u00b7 Your assistant');
+    }
+    var t2 = q('#step2Title'), s2 = q('#step2Sub');
+    var nmA=(document.querySelector('#assistName')&&document.querySelector('#assistName').value||'Eddie');
+    if (t2) t2.textContent = me ? 'What should '+nmA+' remember for you?' : 'What do customers ask you most?';
+    if (s2) s2.textContent = me
+      ? 'Add the questions people ask you, and the answer you want sent back. Eddie replies with your own words.'
+      : 'Add your products with prices, then the questions customers ask you every day. Eddie answers them by itself.';
+  }
+
+  function person(s){ return s.biz || 'you' }
+
+  function greetLine(s){
+    if(s.mode==='personal'){
+      var nm=(s.assist||'Eddie');
+      if(!s.biz) return 'Hi \u{1F44B} This is '+nm+'. Leave your message and I will get back to you shortly.'
+        + (s.hours? ' Usually free '+s.hours+'.' : '');
+      return 'Hi \u{1F44B} This is '+nm+', the assistant for '+person(s)+'.'
+        + (s.hours? ' Usually free '+s.hours+'.' : '')
+        + ' Leave your message and it will be answered shortly.';
+    }
+    return 'Hello and welcome to '+s.biz+' \u{1F44B}'
+      + (s.hours? ' We are open '+s.hours+'.' : '')
+      + ' Tell me what you need and I will help you with prices, delivery and payment.';
+  }
+
+  function personalKit(s){
+    var n=s.assist||'Eddie';
+    return [
+      {h:'Greeting message',p:'Hi, this is '+n+', the assistant for '+person(s)+'. Leave your message and it will be answered shortly.',w:'Settings · Business tools · Greeting message'},
+      {h:'Away message',p:'Thanks for your message. I am away from my phone right now and will reply as soon as I can.'+(s.hours?' Usually free: '+s.hours+'.':''),w:'Settings · Business tools · Away message'},
+      {h:'Quick reply · Call back',p:'I saw your message. I will call you back shortly.',w:'Quick replies'},
+      {h:'Quick reply · Send details',p:'Please send the details here and I will look at it today.',w:'Quick replies'},
+      {h:'Quick reply · Busy now',p:'I cannot talk right now, but message me and I will reply properly.',w:'Quick replies'},
+      {h:'Quick reply · Location',p:s.town?'I am around '+s.town+'. I will send the exact place when we speak.':'I will send the exact location when we speak.',w:'Quick replies'}
+    ];
+  }
+
+  wireExtras();
+
+  function render(s){
+    state=s;
+    $('#pav').textContent=((s.biz||'You').trim().charAt(0)||'You').toUpperCase();
+    $('#pname').textContent=s.biz||'Your assistant';
+    $('#pstatus').textContent='online · '+(s.assist||'Eddie')+' replies instantly';
+    $('#chat').innerHTML='';
+    push(greetLine(s),'in');
+    var chips = s.mode==='personal'
+      ? ['Hello','Where are you?','Are you free?','How do I pay?','Call me back']
+      : ['How much?','Where are you?','Are you open?','Do you deliver?','How do I pay?'];
+    $('#chips').innerHTML='';
+    chips.forEach(function(c){var b=document.createElement('button');b.textContent=c;b.onclick=function(){sendText(c)};$('#chips').appendChild(b)});
+
+    var k=$('#kit'); k.innerHTML='';
+    kit(s).forEach(function(row){
+      var d=document.createElement('div'); d.className='kitcard';
+      d.innerHTML='<header><h4>'+esc(row.h)+'</h4><button>Copy</button></header><p>'+esc(row.p)+'</p><div class="where">'+esc(row.w)+'</div>';
+      d.querySelector('button').onclick=function(){
+        navigator.clipboard&&navigator.clipboard.writeText(row.p).then(function(){toast('Copied')},function(){toast('Select the text to copy')});
+      };
+      k.appendChild(d);
+    });
+  }
+
+  $('#chatSend').onclick=function(){sendText($('#chatText').value);$('#chatText').value=''};
+  $('#chatText').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();sendText(this.value);this.value=''}});
+
+  $('#download').onclick=function(){
+    var s=state||collect();
+    var txt='EDDIE KIT — '+s.biz+'\nAssistant name: '+(s.assist||'Eddie')+'\n\n';
+    kit(s).forEach(function(r){txt+='== '+r.h+' ==\n'+r.p+'\n\n'});
+    txt+='== Store info ==\nHours: '+(s.hours||'-')+'\nTown: '+(s.town||'-')+'\nPayment: '+(s.pay||'-')+'\nDelivery: '+(s.deliver||'-')+'\n';
+    var b=new Blob([txt],{type:'text/plain'}), a=document.createElement('a');
+    a.href=URL.createObjectURL(b); a.download='eddie-kit-'+s.biz.toLowerCase().replace(/[^a-z0-9]+/g,'-')+'.txt';
+    a.click(); URL.revokeObjectURL(a.href); toast('Kit downloaded');
+  };
+  $('#waLink').onclick=function(){
+    var s=state||collect();
+    if(!s.phone){toast('Add your WhatsApp number in step 1');return}
+    window.open('https://wa.me/'+s.phone,'_blank');
+  };
+
+  /* ---------------- todos ---------------- */
+  function loadTodos(){try{todos=JSON.parse(localStorage.getItem(TKEY)||'[]')}catch(e){todos=[]}}
+  function saveTodos(){try{localStorage.setItem(TKEY,JSON.stringify(todos))}catch(e){}}
+  function drawTodos(){
+    var list=$('#todoList'); list.innerHTML='';
+    if(!todos.length){list.innerHTML='<li class="empty" style="border:0;background:transparent">Nothing here yet. Add the first thing on your mind.</li>'}
+    todos.forEach(function(t,i){
+      var li=document.createElement('li'); if(t.done) li.className='done';
+      li.innerHTML='<button class="tick '+(t.done?'on':'')+'" aria-label="Done">'+(t.done?'✓':'')+'</button>'+
+        '<div><div class="tt">'+esc(t.text)+'</div><div class="when">'+esc(t.when)+'</div></div>'+
+        '<button class="rm" aria-label="Delete">×</button>';
+      li.querySelector('.tick').onclick=function(){todos[i].done=!todos[i].done;saveTodos();drawTodos()};
+      li.querySelector('.rm').onclick=function(){todos.splice(i,1);saveTodos();drawTodos()};
+      list.appendChild(li);
+    });
+    var done=todos.filter(function(t){return t.done}).length;
+    $('#todoBar').style.width=todos.length?(done/todos.length*100)+'%':'0';
+    $('#todoCount').textContent=todos.length?(done+' of '+todos.length+' finished'):'No tasks yet';
+  }
+  function addTodo(){
+    var v=$('#todoText').value.trim(); if(!v) return;
+    todos.unshift({text:v,done:false,when:new Date().toLocaleDateString([], {day:'numeric',month:'short'})});
+    $('#todoText').value=''; saveTodos(); drawTodos();
+  }
+  $('#todoAddBtn').onclick=addTodo;
+  $('#todoText').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();addTodo()}});
+  $('#todoClear').onclick=function(){todos=todos.filter(function(t){return !t.done});saveTodos();drawTodos();toast('Finished tasks cleared')};
+
+  /* ---------------- tabs ---------------- */
+  function tab(which){
+    var a=which==='a';
+    $('#tabA').setAttribute('aria-selected',a?'true':'false');
+    $('#tabT').setAttribute('aria-selected',a?'false':'true');
+    $('#paneAssistant').hidden=!a; $('#paneTodo').hidden=a;
+    if(a){ $('#hero').style.display=state?'none':''; } else { $('#hero').style.display=''; }
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+  $('#tabA').onclick=function(){tab('a')};
+  $('#tabT').onclick=function(){tab('t')};
+  $('#todoJump').onclick=function(){tab('t');setTimeout(function(){$('#todoText').focus()},320)};
+
+  /* ---------------- boot ---------------- */
+  var saved=load();
+  if(saved){
+    fill(saved); state=saved; render(saved); showStep(3);
+  } else {
+    addItemRow(); addFaqRow(); showStep(1);
+  }
+  loadTodos(); drawTodos();
+})();
+</script>
+</body>
+</html>
