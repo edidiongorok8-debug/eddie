@@ -113,6 +113,29 @@ Eddie is one static HTML file with no build step and no dependencies.
 
 ---
 
+## 11a. Working on the code
+
+The app is still one page with no build step: open `index.html` by double clicking it and everything runs.
+
+| File | What it is |
+| --- | --- |
+| `index.html` | Markup, styles and the app itself: wizard, conversations, kit, to-dos |
+| `engine.js` | The reply engine, in its own file so it can be tested. Loaded with a normal script tag, no bundler |
+| `templates.js` | Role starter packs |
+| `test-engine.js` | Engine tests, run with `node test-engine.js` |
+
+Run the tests before opening a pull request:
+
+```
+node test-engine.js
+```
+
+The tests check that 20 realistic customer questions (including awkward ones such as "how much be this thing") all return a usable answer, that a named product still gets its price without the word price, and that no answer ever quotes a figure that is not in the owner's own data.
+
+Customer conversations are saved per browser under `eddie.threads.v1`, separate from the setup under `eddie.biz.v1`, so an owner can clear one without losing the other.
+
+---
+
 ## 12. Roadmap
 
 1. Meta WhatsApp Cloud API, so replies send themselves.

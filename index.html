@@ -72,6 +72,50 @@
   details.adv{margin-top:4px;border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:#fdfcff}
   details.adv summary{cursor:pointer;font-size:13px;font-weight:700;color:var(--ink2)}
 
+
+  /* ---------- accessibility ---------- */
+  :focus-visible{outline:3px solid var(--violet);outline-offset:2px;border-radius:8px}
+  .sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+  .thr:focus-visible,.tabs button:focus-visible,.composer .icon:focus-visible{outline-color:#fff}
+
+  /* ---------- customer conversations ---------- */
+  .demo-card{grid-column:1/-1}
+  .wa{display:grid;grid-template-columns:250px 1fr;gap:10px;background:#120d20;border-radius:16px;padding:10px;min-height:440px}
+  .wa-side{background:#181228;border-radius:12px;display:flex;flex-direction:column;overflow:hidden;min-height:0}
+  .wa-search{padding:8px 8px 4px}
+  .wa-search input{background:#241b3a;border:1px solid #342a4e;color:#fff;border-radius:999px;padding:8px 12px;font-size:12.5px}
+  .wa-search input::placeholder{color:#8c83a8}
+  .new-thr{margin:6px 8px 8px;border:1px dashed #4b3d70;background:#1b1430;color:#cfc7e8;border-radius:10px;padding:7px 10px;font:inherit;font-size:12px;font-weight:700;cursor:pointer;text-align:left}
+  .new-thr:hover{background:#241b3a}
+  .threads{overflow:auto;flex:1;padding:0 6px 6px;min-height:0}
+  .thr{display:flex;gap:9px;align-items:center;width:100%;text-align:left;background:transparent;border:0;border-radius:10px;padding:9px 8px;cursor:pointer;color:#e9e4ff;font:inherit}
+  .thr:hover{background:#241b3a}
+  .thr.on{background:#2b2144}
+  .thr .av2{width:32px;height:32px;border-radius:50%;flex:none;display:grid;place-items:center;font-weight:800;font-size:13px;background:linear-gradient(145deg,var(--violet),#9a7cff);color:#fff}
+  .thr .mid{min-width:0;flex:1}
+  .thr b{display:block;font-size:12.8px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .thr small{display:block;font-size:11px;color:#8c83a8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .thr .badge{background:var(--mint);color:#062a1e;font-size:10px;font-weight:800;border-radius:999px;padding:1px 6px}
+  .wa-main{display:flex;flex-direction:column;min-width:0}
+  .wa-main .chat{flex:1;height:auto;min-height:220px;margin:8px 0}
+  .ticks{display:inline-block;margin-left:5px;font-size:10px;letter-spacing:-1px;color:#9be7c9}
+  .ticks.read{color:#5fd0ff}
+  .typing{display:inline-flex;gap:4px;align-items:center;padding:2px 0}
+  .typing i{width:6px;height:6px;border-radius:50%;background:#cfc7e8;display:block;animation:eddieBlink 1.2s infinite}
+  .typing i:nth-child(2){animation-delay:.18s}
+  .typing i:nth-child(3){animation-delay:.36s}
+  @keyframes eddieBlink{0%,80%,100%{opacity:.25;transform:translateY(0)}40%{opacity:1;transform:translateY(-2px)}}
+  .composer{display:flex;gap:6px;align-items:flex-end}
+  .composer textarea{flex:1;background:#1b1430;border:1px solid #342a4e;color:#fff;border-radius:18px;padding:11px 14px;font:inherit;font-size:13.5px;line-height:1.35;max-height:96px;min-height:44px;resize:none;overflow:auto}
+  .composer textarea::placeholder{color:#8c83a8}
+  .composer .icon{width:44px;height:44px;flex:none;border-radius:50%;border:1px solid #342a4e;background:#1b1430;color:#cfc7e8;font-size:15px;cursor:pointer;display:grid;place-items:center}
+  .composer .icon:hover{background:#241b3a}
+  .composer .send2{background:var(--mint);color:#062a1e;border:0;font-weight:800}
+  @media (max-width:720px){
+    .wa{grid-template-columns:1fr}
+    .wa-side{max-height:190px}
+  }
+
   /* ---------- result ---------- */
   .result{display:grid;grid-template-columns:1fr 1fr;gap:16px}
   .phone{background:#0e0a18;border-radius:22px;padding:10px;box-shadow:var(--shadow-lift)}
@@ -322,24 +366,36 @@
     <!-- step 3 -->
     <div id="step3" hidden>
       <div class="result">
-        <div class="card">
+        <div class="card demo-card">
           <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
             <h3 style="margin:0;font-size:16px">Try it like a customer</h3>
             <button class="ghost" id="editBtn" style="margin-left:auto;padding:7px 12px;font-size:12.5px">Edit details</button>
             <button class="ghost" id="backupBtn" style="padding:7px 12px;font-size:12.5px">Move to another phone</button>
           </div>
           <p style="margin:0 0 10px;color:var(--muted);font-size:12.5px">Type what a customer would type. This is exactly how Eddie replies.</p>
-          <div class="phone">
-            <div class="phone-top">
-              <div class="av" id="pav">M</div>
-              <div><b id="pname">Your business</b><small id="pstatus">online · replies instantly</small></div>
-            </div>
-            <div class="chat" id="chat"></div>
-            <div class="chips" id="chips"></div>
-            <div class="send">
-              <input id="chatText" placeholder="Type a message" aria-label="Type a message" />
-              <button id="micBtn" aria-label="Speak instead of typing" title="Speak instead of typing" style="background:#efe9ff;color:#5a3fd6;border:0">&#127908;</button>
-              <button id="chatSend" aria-label="Send">➤</button>
+          <div class="wa">
+            <aside class="wa-side" aria-label="Customer conversations">
+              <div class="wa-search">
+                <label class="sr" for="thrSearch">Search conversations</label>
+                <input id="thrSearch" type="search" placeholder="Search name or message" autocomplete="off" />
+              </div>
+              <button type="button" class="new-thr" id="newThread" aria-label="Start a new customer conversation">+ New customer</button>
+              <div class="threads" id="threads" role="list" aria-label="Customer threads"></div>
+            </aside>
+            <div class="wa-main">
+              <div class="phone-top">
+                <div class="av" id="pav" aria-hidden="true">M</div>
+                <div><b id="pname">Your business</b><small id="pstatus">online · replies instantly</small></div>
+              </div>
+              <div class="chat" id="chat" role="log" aria-live="polite" aria-label="Conversation"></div>
+              <div class="chips" id="chips"></div>
+              <div class="composer">
+                <label class="sr" for="chatText">Type a message</label>
+                <textarea id="chatText" rows="1" placeholder="Type a message" aria-label="Type a message"></textarea>
+                <button type="button" class="icon" id="attachBtn" aria-label="Attach a file, coming soon" title="Attach a file, coming soon">📎</button>
+                <button type="button" class="icon" id="micBtn" aria-label="Speak instead of typing" title="Speak instead of typing">🎤</button>
+                <button type="button" class="icon send2" id="chatSend" aria-label="Send message" title="Send">➤</button>
+              </div>
             </div>
           </div>
         </div>
@@ -377,9 +433,10 @@
 
   <footer>Eddie · built for small businesses that live on WhatsApp · nothing leaves this device unless you switch AI mode on</footer>
 </div>
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-<script src="/templates.js"></script>
+<script src="templates.js"></script>
+<script src="engine.js"></script>
 <script>
 (function(){
   var $=function(s,r){return (r||document).querySelector(s)};
@@ -391,8 +448,17 @@
   function load(){try{return JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){return null}}
   function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
 
+  /* Setup is only "ready" when there is something real to answer with.
+     Anything less lands on step one, never on the chat. */
+  function isReady(s){
+    if(!s) return false;
+    if(s.mode==='personal') return true;
+    return !!(s.biz && String(s.biz).trim());
+  }
+
   /* ---------------- flow ---------------- */
   function showStep(n){
+    if(n===3 && !isReady(state||load())) n=1;
     $('#step1').hidden=n!==1; $('#step2').hidden=n!==2; $('#step3').hidden=n!==3;
     $$('#stepBar span').forEach(function(s){s.classList.toggle('on',+s.dataset.s===n)});
     $('#hero').style.display=n===3?'none':'';
@@ -518,84 +584,13 @@
     initVoice();
   }
 
-  /* ---------------- the reply engine ---------------- */
-  function money(p){
-    if(!p) return '';
-    var n=parseFloat(String(p).replace(/[^0-9.]/g,''));
-    if(isNaN(n)) return String(p);
-    return '₦'+n.toLocaleString('en-NG');
-  }
-  function priceList(s,limit){
-    var list=(s.items||[]).slice(0,limit||3).map(function(i){return '• '+i.n+' — '+money(i.p)});
-    return list.join('\n');
-  }
-  function words(t){return String(t||'').toLowerCase().replace(/[^a-z0-9₦\s]/g,' ').split(/\s+/).filter(Boolean)}
-  function score(a,b){
-    var wb=words(b), n=0;
-    words(a).forEach(function(w){ if(w.length>2 && wb.indexOf(w)>-1) n++; });
-    return n;
-  }
-
-  function reply(s,text){
-    var t=String(text||'').toLowerCase().trim();
-    var name=s.assist||'Eddie';
-    if(s.mode==='personal'){
-      if(/^(hi|hello|hey|good (morning|afternoon|evening)|how far)\b/.test(t)||t==='hi')
-        return 'Hi 👋 This is '+name+'. How can I help?';
-      if(/price|how much|cost|rate/.test(t)) return 'Let me confirm that and come back to you. What exactly do you need?';
-      if(/where|location|address|come/.test(t)) return s.town ? 'I am around '+s.town+'. I will send the exact place when we speak.' : 'I will send the exact place when we speak.';
-      if(/open|free|time|hours|available|busy/.test(t)) return s.hours ? 'Usually free '+s.hours+'. What time works for you?' : 'Tell me a good time and I will confirm.';
-      if(/pay|transfer|account|cash/.test(t)) return 'Let us sort that when we speak, so nothing gets mixed up.';
-    }
-
-    /* greetings */
-    if(/^(hi|hello|hey|good (morning|afternoon|evening)|how far|wetin dey|abeg)\b/.test(t)||t==='hi'){
-      return 'Hello and welcome to '+s.biz+' 👋\n'+(s.hours?'We are open '+s.hours+'. ':'')+'Tell me what you need and I will help with prices, delivery and payment.';
-    }
-    /* price of a specific product */
-    var best=null,bestScore=0;
-    (s.items||[]).forEach(function(i){
-      var sc=score(t,i.n);
-      if(sc>bestScore){bestScore=sc;best=i}
-    });
-    if(best && bestScore>0 && /price|how much|cost|naira|₦|sell|buy|available|need|want/.test(t)){
-      return best.n+' is '+money(best.p)+'.'+(s.deliver?'\n\n'+s.deliver:'')+'\n\nHow many do you need?';
-    }
-    /* price list */
-    if(/price|how much|cost|rate|list/.test(t) && !best){
-      return 'Our prices:\n'+priceList(s,4)+(s.pay?'\n\nPayment: '+s.pay:'')+'\n\nAnything there you want to order?';
-    }
-    /* location */
-    if(/where|address|location|shop|come|direction|find you/.test(t)){
-      return 'We are in '+(s.town||'town')+'.'+(s.deliver?'\n'+s.deliver:'')+'\n\nShould I keep your order aside?';
-    }
-    /* hours */
-    if(/open|close|time|hours|today|sunday|saturday/.test(t)){
-      return 'Our opening hours: '+(s.hours||'please ask us')+'. If you message outside these hours, I will still note your order and we reply first thing.';
-    }
-    /* payment */
-    if(/pay|payment|transfer|account|pos|card|cash|money/.test(t)){
-      return s.pay?'You can pay like this: '+s.pay+'\n\nSend the receipt here and I will confirm your order.':'Please ask us for the payment details and we will send them right away.';
-    }
-    /* delivery */
-    if(/deliver|delivery|bring|send|dispatch|pick ?up|transport/.test(t)){
-      return s.deliver||'Tell me your area and I will confirm delivery.';
-    }
-    /* human */
-    if(/owner|manager|boss|human|person|call|speak|talk to/.test(t)){
-      return 'Of course. I have noted this for the owner'+(s.phone?' — you can also call '+s.phone.replace(/^(\d{3})(\d{3})(\d{4})$/, '+$1 $2 $3'):'')+'. What is the best time to reach you?';
-    }
-    /* FAQs */
-    var fbest=null,fs=0;
-    (s.faqs||[]).forEach(function(f){var sc=score(t,f.q); if(sc>fs){fs=sc;fbest=f}});
-    if(fbest && fs>0) return fbest.a;
-    /* thanks / bye */
-    if(/thank|thanks|ok|okay|alright|fine/.test(t)) return 'You are welcome. Message me anytime, '+ (s.biz||'we') +' is here.';
-
-    /* fallback */
-    if(s.mode==='personal') return 'Noted, thank you. I have passed it on and '+(s.biz? person(s) : 'it')+' will get back to you shortly.';
-    return 'I can help with prices, location, opening hours, payment and delivery.\n\n'+priceList(s,3)+'\n\nWhich one do you want to ask about?';
-  }
+  /* ---------------- the reply engine ----------------
+     The logic lives in engine.js so it can be tested with node. */
+  var ENG=window.EDDIE_ENGINE;
+  if(!ENG){ console.error('engine.js did not load'); }
+  function money(p){return ENG.money(p)}
+  function priceList(s,limit){return ENG.priceList(s,limit)}
+  function reply(s,text){return ENG.reply(s,text)}
 
   /* optional AI mode for questions outside the script */
   function aiReply(s,text){
@@ -613,32 +608,116 @@
       .catch(function(){return null});
   }
 
-  /* ---------------- chat UI ---------------- */
-  function bub(html,cls){
-    var d=document.createElement('div'); d.className='bub '+cls;
-    d.innerHTML=esc(html).replace(/\n/g,'<br>');
+  /* ---------------- conversations ---------------- */
+  var TTHREADS='eddie.threads.v1', threads=[], activeId=null;
+
+  function nowTime(){return new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}
+  function uid(){return 't'+Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+
+  function loadThreads(){
+    try{ var raw=localStorage.getItem(TTHREADS); threads=raw?JSON.parse(raw):[] }catch(e){ threads=[] }
+    if(!Array.isArray(threads)) threads=[];
+    activeId=threads.length?threads[0].id:null;
+  }
+  function saveThreads(){try{localStorage.setItem(TTHREADS,JSON.stringify(threads))}catch(e){}}
+  function activeThread(){for(var i=0;i<threads.length;i++){if(threads[i].id===activeId)return threads[i]}return null}
+  function newThread(name){
+    var t={id:uid(),name:(name||'New customer'),msgs:[],unread:0};
+    threads.unshift(t); activeId=t.id; saveThreads();
+    return t;
+  }
+  function snippetOf(t){
+    if(!t.msgs||!t.msgs.length) return 'No messages yet';
+    var m=t.msgs[t.msgs.length-1];
+    var txt=String(m.text).replace(/\s+/g,' ');
+    return (m.dir==='out'?'You: ':'')+(txt.length>42?txt.slice(0,42)+'…':txt);
+  }
+
+  function renderThreads(){
+    var box=$('#threads'); if(!box) return;
+    var q=(($('#thrSearch')||{}).value||'').trim().toLowerCase();
+    box.innerHTML='';
+    var list=threads.filter(function(t){
+      if(!q) return true;
+      if(String(t.name).toLowerCase().indexOf(q)>-1) return true;
+      return (t.msgs||[]).some(function(m){return String(m.text).toLowerCase().indexOf(q)>-1});
+    });
+    if(!list.length){
+      var p=document.createElement('p');
+      p.className='empty'; p.style.cssText='color:#8c83a8;font-size:12px;padding:16px 10px';
+      p.textContent=q?'No customer matches that search.':'No customers yet. Add one above.';
+      box.appendChild(p); return;
+    }
+    list.forEach(function(t){
+      var b=document.createElement('button');
+      b.type='button'; b.className='thr'+(t.id===activeId?' on':'');
+      b.setAttribute('aria-pressed', t.id===activeId?'true':'false');
+      b.innerHTML='<span class="av2" aria-hidden="true">'+esc(String(t.name||'?').charAt(0).toUpperCase())+'</span>'+
+        '<span class="mid"><b>'+esc(t.name)+'</b><small>'+esc(snippetOf(t))+'</small></span>'+
+        (t.unread?'<span class="badge">'+t.unread+'</span>':'');
+      b.onclick=function(){activeId=t.id;t.unread=0;saveThreads();drawThread();renderThreads()};
+      box.appendChild(b);
+    });
+  }
+
+  function bubbleFor(m){
+    var d=document.createElement('div'); d.className='bub '+m.dir;
+    d.innerHTML=esc(m.text).replace(/\n/g,'<br>');
     var t=document.createElement('div'); t.className='t';
-    t.textContent=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    t.appendChild(document.createTextNode(m.time||nowTime()));
+    if(m.dir==='out'){
+      var k=document.createElement('span');
+      k.className='ticks'+(m.state==='read'?' read':'');
+      k.textContent=(m.state==='sent')?'✓':'✓✓';
+      k.setAttribute('aria-label', m.state==='sent'?'Sent':m.state==='read'?'Read':'Delivered');
+      t.appendChild(k);
+    }
     d.appendChild(t); return d;
   }
-  function push(html,cls){var c=$('#chat'); c.appendChild(bub(html,cls)); c.scrollTop=c.scrollHeight;}
+
+  function drawThread(){
+    var c=$('#chat'); if(!c) return;
+    c.innerHTML='';
+    var t=activeThread();
+    if(!t){ c.innerHTML='<p class="empty" style="color:#8c83a8">Pick a customer on the left, or add a new one.</p>'; return; }
+    if(!t.msgs.length){
+      t.msgs.push({dir:'in',text:greetLine(state||collect()),time:nowTime()});
+      saveThreads();
+    }
+    t.msgs.forEach(function(m){c.appendChild(bubbleFor(m))});
+    c.scrollTop=c.scrollHeight;
+  }
 
   function sendText(txt){
-    txt=(txt||'').trim(); if(!txt) return;
-    push(txt,'out');
-    var s=state;
-    push('…','in');
-    var c=$('#chat'); var typing=c.lastChild;
+    txt=String(txt||'').trim(); if(!txt) return;
+    var t=activeThread()||newThread('Customer '+(threads.length+1));
+
+    var out={dir:'out',text:txt,time:nowTime(),state:'sent'};
+    t.msgs.push(out); saveThreads(); drawThread(); renderThreads();
+
+    /* one tick sent, two ticks delivered, blue once it is read */
+    setTimeout(function(){out.state='delivered';saveThreads();drawThread()},450);
+    setTimeout(function(){out.state='read';saveThreads();drawThread()},1300);
+
+    /* typing dots, 600 to 900ms, before the reply renders */
+    var c=$('#chat');
+    var typing=document.createElement('div'); typing.className='bub in';
+    typing.innerHTML='<span class="typing" aria-label="Typing"><i></i><i></i><i></i></span>';
+    c.appendChild(typing); c.scrollTop=c.scrollHeight;
+
+    var s=state||collect();
     var answer=reply(s,txt);
-    var generic=/Which one do you want to ask about\?$/.test(answer);
+    var wait=600+Math.round(Math.random()*300);
     var finish=function(text){
-      if(typing&&typing.parentNode) typing.parentNode.removeChild(typing);
-      push(text,'in');
+      if(typing.parentNode) typing.parentNode.removeChild(typing);
+      t.msgs.push({dir:'in',text:text,time:nowTime()});
+      if(activeThread()!==t) t.unread=(t.unread||0)+1;
+      saveThreads(); drawThread(); renderThreads();
     };
-    if(generic){
-      aiReply(s,txt).then(function(ai){finish(ai||answer)});
+    if(ENG.isGenericAnswer(answer)){
+      aiReply(s,txt).then(function(ai){setTimeout(function(){finish(ai||answer)},wait)});
     } else {
-      setTimeout(function(){finish(answer)}, 380 + Math.random()*260);
+      setTimeout(function(){finish(answer)},wait);
     }
   }
 
@@ -726,8 +805,9 @@
     $('#pav').textContent=((s.biz||'You').trim().charAt(0)||'You').toUpperCase();
     $('#pname').textContent=s.biz||'Your assistant';
     $('#pstatus').textContent='online · '+(s.assist||'Eddie')+' replies instantly';
-    $('#chat').innerHTML='';
-    push(greetLine(s),'in');
+    if(!threads.length) newThread(s.biz||'Customer 1');
+    if(!activeThread()) activeId=threads[0].id;
+    drawThread(); renderThreads();
     var chips = s.mode==='personal'
       ? ['Hello','Where are you?','Are you free?','How do I pay?','Call me back']
       : ['How much?','Where are you?','Are you open?','Do you deliver?','How do I pay?'];
@@ -745,8 +825,27 @@
     });
   }
 
-  $('#chatSend').onclick=function(){sendText($('#chatText').value);$('#chatText').value=''};
-  $('#chatText').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();sendText(this.value);this.value=''}});
+  var composer=$('#chatText');
+  function growComposer(){
+    if(!composer) return;
+    composer.style.height='auto';
+    composer.style.height=Math.min(composer.scrollHeight,96)+'px';
+  }
+  if(composer){
+    composer.addEventListener('input',growComposer);
+    composer.addEventListener('keydown',function(e){
+      if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendText(this.value);this.value='';growComposer()}
+    });
+    growComposer();
+  }
+  $('#chatSend').onclick=function(){sendText($('#chatText').value);$('#chatText').value='';growComposer()};
+
+  var attachBtn=$('#attachBtn');
+  if(attachBtn) attachBtn.onclick=function(){toast('Attachments are coming soon. Paste the file link in the message instead.')};
+  var ntBtn=$('#newThread');
+  if(ntBtn) ntBtn.onclick=function(){newThread('Customer '+(threads.length+1));drawThread();renderThreads();if(composer)composer.focus()};
+  var thrSearch=$('#thrSearch');
+  if(thrSearch) thrSearch.addEventListener('input',renderThreads);
 
   $('#download').onclick=function(){
     var s=state||collect();
@@ -805,10 +904,12 @@
   $('#todoJump').onclick=function(){tab('t');setTimeout(function(){$('#todoText').focus()},320)};
 
   /* ---------------- boot ---------------- */
+  loadThreads();
   var saved=load();
-  if(saved){
+  if(isReady(saved)){
     fill(saved); state=saved; render(saved); showStep(3);
   } else {
+    /* nothing usable saved: always start at step one */
     addItemRow(); addFaqRow(); showStep(1);
   }
   loadTodos(); drawTodos();
